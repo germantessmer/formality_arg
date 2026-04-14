@@ -1,0 +1,10 @@
+nivel_chr,anios_educ,edad_teorica,anios_objetivo,nota
+Primaria Completa,7,12,7,REVISAR si nota es NA — categoría no estándar
+Primaria Incompleta,3.5,10,3.5,REVISAR si nota es NA — categoría no estándar
+Secundaria Completa,12,18,12,REVISAR si nota es NA — categoría no estándar
+Secundaria Incompleta,9.5,15,9.5,REVISAR si nota es NA — categoría no estándar
+Sin instrucción,0,6,0,REVISAR si nota es NA — categoría no estándar
+Terciario Completo,15,22,15,REVISAR si nota es NA — categoría no estándar
+Terciario Incompleto,13.5,20,13.5,REVISAR si nota es NA — categoría no estándar
+Universitaria Completa,17,23,17,REVISAR si nota es NA — categoría no estándar
+Universitaria Incompleta,14,21,14,REVISAR si nota es NA — categoría no estándar

@@ -1,0 +1,261 @@
+---
+title: "Sistema de Proxies para el Modelo Heterofactor"
+subtitle: "Validación Capa 2 — EPH Argentina 2016T4–2025T3"
+date: "`r format(Sys.time(), '%d de %B de %Y')`"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_depth: 3
+    number_sections: true
+    df_print: kable
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width  = 11,  # HC documentado: dimensiones preview HTML — independiente de ANCHO_FIG
+  fig.height = 5.5,  # HC documentado: dimensiones preview HTML — independiente de ALTO_FIG
+  dpi        = 150  # HC documentado: resolución preview HTML — estándar proyecto (≠ cairo_pdf)
+)
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(knitr)
+  library(scales)
+})
+
+# Objetos gráficos (p_dist_cog, p_heatmap_cor, etc.) construidos en 05_reporte_proxies.R
+# theme_paper(), PAL_DESCRIPTIVO disponibles via envir=environment()
+
+# Etiquetas cortas para gráficos (necesarias para tablas del Rmd)
+labels_proxy <- c(
+  "rezago_escolar_cohorte"   = "Rezago escolar (cohorte)",
+  "clima_educativo_hogar"    = "Clima educativo (hogar)",
+  "emparejamiento_selectivo" = "Emparejamiento selectivo",
+  "calificacion_norm"        = "Calificación ocupacional",
+  "entropia_estabilidad"     = "Entropía de estabilidad",
+  "residual_vivienda"        = "Residual vivienda",
+  "busqueda_formal"          = "Búsqueda formal"
+)
+```
+
+---
+
+# Presentación del sistema de medición
+
+Este reporte documenta el sistema de **7 proxies observables** construidas para la identificación del modelo heterofactor de habilidades (Sarzosa & Urzúa, 2016). El sistema mide dos factores latentes —habilidad cognitiva (θ_cog) y habilidad socioemocional (θ_socio)— con fuentes de varianza ortogonales, condición necesaria para el Teorema de Kotlarski.
+
+```{r kpi-banner}
+# Tabla KPI superior
+kpis <- tibble(
+  Indicador = c("Proxies totales", "Factor θ_cog", "Factor θ_socio",
+                "Tests Kotlarski", "Observaciones", "Períodos"),
+  Valor = c(
+    "7",
+    "4 proxies",
+    "3 proxies",
+    sprintf("%d / 5 PASS", sum(tests_kotlarski$resultado)),
+    format(nrow(datos), big.mark = ","),
+    sprintf("%s → %s",
+            min(evolucion_temporal$periodo_id),
+            max(evolucion_temporal$periodo_id))
+  )
+)
+kable(kpis, align = c("l", "r"), caption = "Resumen del sistema de proxies")
+```
+
+## Tabla descriptiva completa
+
+```{r tabla-descriptiva}
+resumen_proxies %>%
+  select(proxy, factor, fuente, n_valid, na_pct, media, sd, mediana, p25, p75) %>%
+  mutate(
+    proxy   = labels_proxy[proxy],
+    n_valid = format(n_valid, big.mark = ","),
+    na_pct  = sprintf("%.1f%%", na_pct),
+    across(c(media, sd, mediana, p25, p75), ~ sprintf("%.3f", .))
+  ) %>%
+  rename(
+    Proxy = proxy, Factor = factor, Fuente = fuente,
+    `N válido` = n_valid, `NA%` = na_pct,
+    Media = media, SD = sd, Mediana = mediana, P25 = p25, P75 = p75
+  ) %>%
+  kable(caption = "Estadísticas descriptivas — 7 proxies del sistema de medición",
+        align   = c("l","c","l","r","r","r","r","r","r","r"))
+```
+
+---
+
+# Fundamentación conceptual de cada proxy
+
+El sistema fue diseñado para maximizar la **ortogonalidad de los errores de medición** entre proxies del mismo factor. Cada proxy captura un mecanismo generador de datos distinto, garantizando que la correlación entre sus errores de medición tienda a cero —condición suficiente para la identificación por el Teorema de Kotlarski.
+
+## Factor θ_cognitivo — cuatro fuentes de varianza
+
+### Proxy 1: Rezago escolar estandarizado por cohorte
+
+Dado un mismo nivel educativo final, quien lo completó en el tiempo teórico demostró mayor eficiencia cognitiva. La estandarización **dentro de cada cohorte de nacimiento** elimina: (a) tendencias educativas intergeneracionales (cada generación accede a más años de escolaridad), y (b) efectos de crisis macroeconómicas cohorte-específicas (ej. 2001). El residuo es una señal pura de **eficiencia relativa a la propia generación**. Carga negativa sobre θ_cog: mayor rezago implica menor habilidad.
+
+### Proxy 2: Clima educativo del hogar
+
+El entorno familiar genera externalidades de aprendizaje continuo: vocabulario avanzado, hábitos de lectura, aspiraciones educativas. Un hogar con adultos más educados (>25 años, ya con formación terminada) **revela y refuerza** mayor dotación cognitiva en sus miembros. El mecanismo generador de datos es **distinto al del propio nivel educativo**: el ambiente de formación vs. el reporte de escolaridad. Fallback jerárquico (hogar → aglomerado → nacional) garantiza cobertura cuasi-universal (NA: 0.0%).
+
+### Proxy 3: Emparejamiento selectivo
+
+La teoría del emparejamiento selectivo (Becker, 1973) establece que los individuos forman pareja con personas de habilidades similares. La educación del cónyuge es una **señal de la habilidad latente** del individuo que trasciende sus propias credenciales: captura inteligencia fluida y rasgos de personalidad que lo hicieron "atractivo" en el mercado matrimonial. Las **fricciones del mercado matrimonial** (el mecanismo generador de error) son ortogonales al error de reporte de escolaridad propia → identificación garantizada. Para jefes/cónyuges sin pareja observada: imputación condicional por grupo etario × sexo × región.
+
+### Proxy 4: Calificación ocupacional normalizada
+
+Las ocupaciones son paquetes de tareas que requieren distintos niveles de habilidades cognitivas. Bajo un modelo de asignación (Roy) con fricciones, los trabajadores con mayor θ_cog tienen ventaja comparativa en tareas de alta complejidad. La clasificación CNO captura esta señal **contemporánea** de capacidad productiva, con mecanismo generador distinto al de la educación (fricción del mercado laboral vs. reporte de escolaridad). El NA% estructural (54.9%) refleja que solo la PEA con historia ocupacional tiene calificación CNO válida.
+
+## Factor θ_socioemocional — tres fuentes de varianza
+
+### Proxy 5: Entropía de estabilidad laboral
+
+Los rasgos *Big Five* de Conscientiousness y Estabilidad Emocional se manifiestan en trayectorias laborales consistentes. Individuos con baja habilidad socioemocional exhiben mayor "turbulencia": transiciones frecuentes entre Ocupado, Desocupado e Inactivo. La **Entropía de Shannon normalizada** (H_norm = H / log₂(3)) sobre las tres condiciones de actividad captura esta turbulencia; se invierte para que mayor valor = mayor estabilidad conductual. Calculada con **todas las ondas disponibles** del individuo → valor constante por historia biográfica.
+
+### Proxy 6: Residual de calidad de vivienda
+
+Individuos con mayor paciencia (baja tasa de descuento temporal) invierten más en la calidad de su vivienda dado su nivel de ingreso. Usar directamente el ICH score sería una proxy del ingreso, no de la habilidad. La solución es extraer el **residual de una regresión OLS**:
+
+> ICH ~ log(ingreso+1) + edad + edad² + región + nivel_educ + año
+
+- Residual > 0: invierte MÁS de lo esperado → mayor paciencia / Conscientiousness  
+- Residual < 0: invierte MENOS de lo esperado → mayor impaciencia
+
+El R² de la regresión fue **0.230**, indicando que el residuo retiene varianza genuina no explicada por el nivel de vida. Para el 22.2% del panel sin ingreso declarado (fenómeno estructural de la EPH), se imputa la mediana del residuo por celda **aglomerado × año × trimestre** (flag `rv_imputado`).
+
+### Proxy 7: Intensidad de búsqueda formal de empleo
+
+Para desocupados, la **forma** de búsqueda revela Grit y Locus de Control Interno. La búsqueda activa (presentarse en empresas, enviar CVs, consultar bolsas, publicar avisos) requiere mayor esfuerzo y autoeficacia que la búsqueda pasiva. Los métodos informales (contactos de conocidos, carteles) fueron excluidos intencionalmente: pueden correlacionar con capital social, no con agencia personal. **NA para no-desocupados** (no 0): el modelo heterofactor con FIML maneja NAs correctamente; entropía + residual_vivienda anclan θ_socio para el resto del panel.
+
+---
+
+# Distribuciones de las proxies
+
+```{r distribucion-cog, fig.height=5, fig.cap="Distribuciones — Proxies θ_cognitivo"}
+p_dist_cog
+```
+
+```{r distribucion-socio, fig.height=4, fig.cap="Distribuciones — Proxies θ_socioemocional"}
+p_dist_socio
+```
+
+```{r dist-busqueda, fig.height=3.5, fig.cap="Distribución búsqueda formal — solo desocupados"}
+p_dist_busqueda
+```
+
+---
+
+# Validaciones de identificación (Teorema de Kotlarski)
+
+El Teorema de Kotlarski establece condiciones suficientes para la identificación no paramétrica de factores latentes a partir de proxies observables. Se requiere que: (i) cada factor cuente con al menos 2 proxies, (ii) los errores de medición sean mutuamente independientes dado el factor, y (iii) las proxies tengan varianza suficiente.
+
+## Tests formales
+
+```{r tests-kotlarski}
+tests_kotlarski %>%
+  select(Test = test, Valor = valor, Umbral = umbral, Resultado = status) %>%
+  kable(caption = "Tests de identificación Kotlarski — Sistema de 7 proxies",
+        align   = c("l","c","c","c"))
+```
+
+```{r resultado-kotlarski, results='asis'}
+if (n_fail == 0) {
+  cat("> ✅ **Sistema APROBADO.** Las 7 proxies satisfacen todos los requisitos de identificación del Teorema de Kotlarski. El sistema está listo para la estimación del modelo heterofactor (Capa 3).\n")
+} else {
+  cat(sprintf("> ❌ **%d test(s) fallido(s).** Revisar el sistema de proxies antes de continuar con la estimación.\n", n_fail))
+}
+```
+
+## Heatmap de correlaciones
+
+```{r heatmap-cor, fig.height=6, fig.cap="Matriz de correlaciones — sistema completo de 7 proxies"}
+p_heatmap_cor
+```
+
+## Correlaciones intra-factor e inter-factor
+
+```{r cor-detalle}
+# Tabla legible de correlaciones cruzadas
+cross_df <- as.data.frame(round(cross_cors, 3)) %>%
+  rownames_to_column("θ_cog \\ θ_socio") %>%
+  rename_with(~ .labels_cor_eje[.], -1)
+
+kable(cross_df,
+      caption = "Correlaciones entre proxies de distinto factor (valores |r| < 0.50 requeridos)",
+      align = c("l", rep("r", 3)))
+```
+
+---
+
+# Estabilidad temporal de las proxies
+
+La estabilidad de las proxies a lo largo del período 2016T4–2025T3 es una condición importante para la validez del backcasting: si el mecanismo de medición cambia estructuralmente, las estimaciones históricas de θ pierden comparabilidad.
+
+```{r evolucion-cog, fig.height=5.5, fig.cap="Evolución temporal — proxies θ_cognitivo"}
+p_evol_cog
+```
+
+```{r evolucion-socio, fig.height=5.5, fig.cap="Evolución temporal — proxies θ_socioemocional"}
+p_evol_socio
+```
+
+---
+
+# Notas metodológicas
+
+## NA% por diseño — aclaración para el paper
+
+Los NA en tres proxies no constituyen pérdida de información sino **restricciones de diseño** necesarias para evitar contaminación del factor latente:
+
+```{r tabla-nas}
+resumen_proxies %>%
+  select(proxy, na_pct, na_por_diseno, fuente) %>%
+  mutate(
+    proxy  = labels_proxy[proxy],
+    motivo = case_when(
+      proxy == "Calificación ocupacional" ~
+        "Solo PEA con historia ocupacional (No-PEA y desocupados sin exp. excluidos)",
+      proxy == "Búsqueda formal" ~
+        "Solo desocupados (~3.2% del panel). NA ≠ 0 para evitar dominancia de θ_socio",
+      proxy == "Rezago escolar (cohorte)" ~
+        "Menores (<15 años) y cohortes singulares (SD=0 → safe_scale devuelve NA)",
+      TRUE ~ "Cobertura universal (fallback jerárquico)"
+    )
+  ) %>%
+  rename(Proxy = proxy, `NA%` = na_pct, `Por diseño` = na_por_diseno,
+         Fuente = fuente, Motivo = motivo) %>%
+  mutate(`Por diseño` = if_else(`Por diseño`, "Sí", "No")) %>%
+  kable(caption = "Estructura de datos faltantes por proxy",
+        align   = c("l","r","c","l","l"))
+```
+
+## Imputación de residual_vivienda
+
+El 22.2% del panel no declara ingresos (fenómeno estructural de la EPH, no aleatoriedad). Sin residual disponible, esos individuos incumplen n_socio ≥ 2 en el heterofactor → estimación de θ_socio imposible para el 29% del *training set* del LASSO.
+
+**Solución aprobada**: mediana del residuo por celda **aglomerado × año × trimestre**. El aglomerado es más fino que la región (evita agregar mercados laborales heterogéneos); el trimestre controla el ciclo inflacionario argentino 2016–2025. Diagnóstico: 100% de los casos imputados resueltos en Nivel 1 (≥266 donantes por celda). El flag `rv_imputado = TRUE` fluye hasta `panel_con_theta.rds` para identificar qué θ_socio fueron estimados con residuo original vs. imputado.
+
+## Validación downstream pendiente
+
+La validación completa del sistema de proxies requiere estimar primero el modelo heterofactor (Capa 3 — Script 06) y luego calcular el R² de cada proxy sobre su factor latente estimado (Script 06b).
+
+**Criterios a cumplir post-estimación:**
+
+- Ningún R² individual > 70% (ausencia de dominancia)
+- Al menos 3 proxies con R² > 10% por factor (contribución sustantiva)
+
+```{r footer}
+cat(sprintf(
+  "\n---\n*Reporte generado automáticamente por 05_reporte_validacion_capa2.R — %s*\n*Proyecto EPH Formalidad | Capa 2 — Sistema de Proxies*",
+  format(Sys.time(), "%Y-%m-%d %H:%M")
+))
+```

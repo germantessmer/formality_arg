@@ -974,6 +974,8 @@ if (!is.null(roc_l) && !is.null(roc_g) && !is.null(roc_s)) {
       c(sprintf("LPM  (AUC=%.4f)",HC_lpm_auc),
         sprintf("GLM  (AUC=%.4f)",HC_glm_auc),
         sprintf("SLS  (AUC=%.4f)",HC_sls_auc)))) +
+    scale_x_continuous(limits=c(0,1), expand=c(0.01,0.01)) +
+    scale_y_continuous(limits=c(0,1), expand=c(0.01,0.01)) +
     tr_labs(title="Comparative ROC curves -- LPM / GLM / SLS",
             subtitle="Test set | 2024Q4-2025Q3",
             x="1 - Specificity (FPR)", y="Sensitivity (TPR)", color=NULL) +
@@ -993,6 +995,8 @@ if (!is.null(roc_l) && !is.null(roc_g) && !is.null(roc_s)) {
     p_pr <- ggplot(pr_all, aes(x=recall, y=precision, color=Modelo)) +
       geom_line(linewidth=0.9) +
       scale_color_modelos() +
+      scale_x_continuous(limits=c(0,1), expand=c(0.01,0.01)) +
+      scale_y_continuous(limits=c(0,1), expand=c(0.01,0.01)) +
       tr_labs(title="Precision-Recall curves -- LPM / GLM / SLS",
               subtitle="Test set | 2024Q4-2025Q3",
               x="Recall", y="Precision", color=NULL) +

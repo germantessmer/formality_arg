@@ -98,6 +98,7 @@ IDIOMA <- "en"   # "en" = paper (default), "es" = tesis
   "N observaciones"                  = "N observations",
   "% varianza"                       = "% variance",
   "Indicador"                        = "Indicator",
+  "Indicator"                        = "Indicator",
   "Decil de ingreso"                 = "Income decile",
   "Media del factor"                 = "Factor mean",
   "Correlaci\u00f3n"                 = "Correlation",
@@ -175,6 +176,52 @@ IDIOMA <- "en"   # "en" = paper (default), "es" = tesis
   "Sin NBI"                          = "Without UBN",
   "Con NBI"                          = "With UBN",
   "NBI (0 = sin NBI, 1 = con NBI)"  = "UBN (0 = without, 1 = with)",
+
+  # ── Indicadores MCA del ICH (nombres de categorías) ───────────────────────
+  "casa"                               = "House",
+  "departamento"                       = "Apartment",
+  "otro_tipo_vivienda"                 = "Other dwelling",
+  "piso_alta_calidad"                  = "Floor: high quality",
+  "piso_mediana_calidad"               = "Floor: medium quality",
+  "piso_precario"                      = "Floor: precarious",
+  "techo_alta_solidez"                 = "Roof: high solidity",
+  "techo_calidad_media"                = "Roof: medium quality",
+  "techo_precario"                     = "Roof: precarious",
+  "agua_exterior"                      = "Water: external",
+  "agua_red_interior"                  = "Water: indoor network",
+  "saneamiento_deficitario"            = "Sanitation: deficit",
+  "saneamiento_optimo"                 = "Sanitation: optimal",
+  "hacinamiento_critico"               = "Overcrowding: critical",
+  "hacinamiento_moderado"              = "Overcrowding: moderate",
+  "sin_hacinamiento"                   = "No overcrowding",
+  # Indicadores MCA agregados (nombres cortos para barras)
+  "piso"                               = "Floor",
+  "techo"                              = "Roof",
+  "agua"                               = "Water",
+  "saneamiento"                        = "Sanitation",
+  "hacinamiento"                       = "Overcrowding",
+  "tipo_vivienda"                      = "Dwelling type",
+  "n_ambientes"                        = "Rooms",
+  "piso_mediana"                       = "Floor (med.)",
+  "techo_calidad"                      = "Roof quality",
+  # Categorías MCA adicionales (Cos², coordenadas, contribuciones)
+  "combustible_precario"               = "Fuel: precarious",
+  "gas_red"                            = "Gas: network",
+  "gas_tubo_garrafa"                   = "Gas: bottled",
+  "inquilino"                          = "Tenant",
+  "ocupante_precario"                  = "Occupant (precarious)",
+  "propietario"                        = "Owner",
+  "si_garage"                          = "Garage: yes",
+  "no_garage"                          = "Garage: no",
+  "si_lavadero"                        = "Laundry: yes",
+  "no_lavadero"                        = "Laundry: no",
+  "0_ambientes"                        = "0 rooms",
+  "1_ambientes"                        = "1 room",
+  "2_ambientes"                        = "2 rooms",
+  "3_ambientes"                        = "3 rooms",
+  "4_ambientes"                        = "4 rooms",
+  "5_mas_ambientes"                    = "5+ rooms",
+  "NA_ambientes"                       = "Rooms: NA",
 
   # ── Labels de figuras 03c (ICH / MCA) ─────────────────────────────────────
   "Observaciones por trimestre (sample 10%)" = "Observations per quarter (10% sample)",
@@ -298,7 +345,20 @@ IDIOMA <- "en"   # "en" = paper (default), "es" = tesis
   "Pred. fuera [0,1]"                  = "Pred. outside [0,1]",
   "Observaciones por trimestre (miles)" = "Observations per quarter (thousands)",
   "Zona sombreada = 4 trimestres con formalidad observada" = "Shaded area = 4 quarters with observed formality",
-  "Zona naranja = observados | Zona gris = trimestres pandemia (COVID)" = "Orange zone = observed | Grey zone = pandemic quarters (COVID)"
+  "Zona naranja = observados | Zona gris = trimestres pandemia (COVID)" = "Orange zone = observed | Grey zone = pandemic quarters (COVID)",
+
+  # ── Labels faltantes detectados en edicion 3 (2026-04-17) ──────────────────
+  "Tasa formal (%)"                    = "Formality rate (%)",
+  "Tasa formal estimada (%)"           = "Estimated formality rate (%)",
+  "Miles de obs."                      = "Obs (thousands)",
+  "Otro"                               = "Other",
+  "H\u00edbrida"                       = "Hybrid",
+  "H\u00edbrida PEA"                   = "Hybrid EAP",
+  "Ocupado"                            = "Employed",
+  "Desocupado potencial"               = "Potential unemployed",
+  "Inactivos 18-60"                    = "Inactive 18\u201360",
+  "Inactivo 18-60"                     = "Inactive 18\u201360",
+  "Categor\u00eda"                     = "Category"
 )
 
 # ── 3. FUNCION tr() ──────────────────────────────────────────────────────────
@@ -315,6 +375,10 @@ tr <- function(x) {
 
   vapply(x, function(s) {
     if (is.na(s)) return(NA_character_)
+    # Traduccion automatica de trimestres: 2016_T4 → 2016Q4
+    if (grepl("^\\d{4}_T[1-4]$", s)) {
+      return(gsub("_T", "Q", s))
+    }
     trad <- .DICT[[s]]
     if (!is.null(trad)) {
       trad
@@ -331,6 +395,13 @@ tr <- function(x) {
       s
     }
   }, character(1), USE.NAMES = TRUE)
+}
+
+#' Traduce labels de trimestres en ejes (YYYY_T# → YYYYQ#)
+#' @param x Character vector con labels de trimestres
+#' @return Character vector con formato inglés
+tr_quarter <- function(x) {
+  gsub("_T([1-4])", "Q\\1", x)
 }
 
 # ── 4. WRAPPERS DE CONVENIENCIA ──────────────────────────────────────────────

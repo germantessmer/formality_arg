@@ -265,6 +265,33 @@ guardar_figura <- function(p, dir_destino, tipo, indice,
   # Versión para PDF: sin title ni subtitle (van en \caption{} de LaTeX)
   p_print <- p + labs(title = NULL, subtitle = NULL)
 
+  # Traducir trimestres YYYY_T# → YYYYQ# en labels del eje X (in-place)
+  .relabel_qtr <- function(x) {
+    x <- gsub("_T([1-4])", "Q\\1", x)   # 2016_T4 → 2016Q4
+    x <- gsub("_Q([1-4])", "Q\\1", x)   # 2016_Q4 → 2016Q4
+    x <- gsub("^T([1-4])_(\\d{4})$", "\\2Q\\1", x)  # T4_2016 → 2016Q4
+    x
+  }
+  x_pos <- which(vapply(p_print$scales$scales,
+                        function(s) "x" %in% s$aesthetics, logical(1)))
+  if (length(x_pos) == 1 && inherits(p_print$scales$scales[[x_pos]], "ScaleDiscrete")) {
+    old_fn <- p_print$scales$scales[[x_pos]]$labels
+    if (is.function(old_fn)) {
+      captured_fn <- old_fn
+      p_print$scales$scales[[x_pos]]$labels <- function(x) .relabel_qtr(captured_fn(x))
+    } else {
+      # NULL, waiver(), or anything else — replace with relabel function
+      p_print$scales$scales[[x_pos]]$labels <- .relabel_qtr
+    }
+  } else if (length(x_pos) == 0) {
+    # No explicit x scale — check if data implies discrete before adding
+    # (avoid overriding continuous scales with scale_x_discrete)
+    x_data <- tryCatch(layer_scales(p_print)$x, error = function(e) NULL)
+    if (!is.null(x_data) && inherits(x_data, "ScaleDiscretePosition")) {
+      p_print <- p_print + scale_x_discrete(labels = .relabel_qtr)
+    }
+  }
+
   ggsave(
     filename = ruta,
     plot     = p_print,

@@ -1174,6 +1174,7 @@ colores_tipos <- setNames(
 )
 
 p_s6 <- cob_pea %>%
+  mutate(tipo_label=tr(tipo_label)) %>%
   mutate(tipo_label=factor(tipo_label, levels=tipos_orden)) %>%
   ggplot(aes(x=periodo_id, y=n/1e3, fill=tipo_label)) +
   geom_col(width=0.8) +

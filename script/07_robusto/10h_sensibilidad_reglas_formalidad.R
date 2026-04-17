@@ -75,7 +75,7 @@ cols_necesarias <- c("categoria_ocupacional", "condicion_actividad", "pondera",
 # Derivar de TRIMESTRES_FORMALIDAD (parametros.R) — 0 HC
 trimestres_info <- lapply(TRIMESTRES_FORMALIDAD, function(tf) {
   parts <- strsplit(tf, "_T")[[1]]
-  list(anio = parts[1], t = parts[2], label = gsub("_T", "_Q", tf))
+  list(anio = parts[1], t = parts[2], label = paste0(parts[1], "Q", parts[2]))
 })
 
 all_dfs <- list()

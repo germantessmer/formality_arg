@@ -910,7 +910,7 @@ p_s3a_comp <- comp_cat_trim %>%
   scale_y_continuous(labels=percent_format(accuracy=1)) +
   tr_labs(title="S3a: Composicion formal/informal por categoria -- solo ocupados",
        subtitle=paste0("Umbral ", LBL_CAL), x=NULL, y="Proporcion") +
-  scale_x_discrete(breaks=trim_ids_cat[seq(1, n_trim_cat, by=2)]) +
+  scale_x_discrete(breaks=trim_ids_cat[seq(1, n_trim_cat, by=3)]) +
   theme_paper() +
   theme(axis.text.x=element_text(angle=45, hjust=1, size=6),
         strip.text=element_text(face="bold"),
@@ -1193,6 +1193,7 @@ colores_tipos <- setNames(
 )
 
 p_s6 <- cob_pea %>%
+  mutate(tipo_label=tr(tipo_label)) %>%
   mutate(tipo_label=factor(tipo_label, levels=tipos_orden)) %>%
   ggplot(aes(x=periodo_id, y=n/1e3, fill=tipo_label)) +
   geom_col(width=0.8) +

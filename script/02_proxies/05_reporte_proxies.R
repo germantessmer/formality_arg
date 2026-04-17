@@ -542,7 +542,7 @@ p_evol_cog <- evolucion_long %>%
   scale_color_manual(values = PAL_DESCRIPTIVO[1:4]) +
   scale_x_continuous(
     breaks = evolucion_temporal$periodo_num[seq(1, nrow(evolucion_temporal), by = 4)],
-    labels = evolucion_temporal$periodo_id[seq(1, nrow(evolucion_temporal), by = 4)]
+    labels = tr_quarter(evolucion_temporal$periodo_id[seq(1, nrow(evolucion_temporal), by = 4)])
   ) +
   theme_paper() +
   theme(legend.position  = "none",
@@ -565,7 +565,7 @@ p_evol_socio <- evolucion_long %>%
   scale_color_manual(values = PAL_DESCRIPTIVO[2:4]) +
   scale_x_continuous(
     breaks = evolucion_temporal$periodo_num[seq(1, nrow(evolucion_temporal), by = 4)],
-    labels = evolucion_temporal$periodo_id[seq(1, nrow(evolucion_temporal), by = 4)]
+    labels = tr_quarter(evolucion_temporal$periodo_id[seq(1, nrow(evolucion_temporal), by = 4)])
   ) +
   theme_paper() +
   theme(legend.position  = "none",

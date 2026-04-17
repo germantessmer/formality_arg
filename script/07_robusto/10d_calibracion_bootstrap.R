@@ -367,10 +367,11 @@ p_boot <- ggplot(boot, aes(x = t_seq)) +
   geom_ribbon(aes(ymin = ic_050, ymax = ic_950),
               fill = COL_BANDA, alpha = 0.50) +
   # Pandemic label (after ribbons so it's in foreground)
-  annotate("label",
-           x = (pandemia_ini + pandemia_fin) / 2, y = 64,
-           label = "Pandemic\nexclusion", size = 2.8, color = "grey30",
-           fill = "white", alpha = 0.85, label.r = unit(0, "pt")) +
+  geom_label(data = data.frame(x = (pandemia_ini + pandemia_fin) / 2, y = 64,
+                               lab = "Pandemic\nexclusion"),
+             aes(x = x, y = y, label = lab),
+             size = 2.8, color = "grey20",
+             fill = NA, label.size = 0, inherit.aes = FALSE) +
   # Serie puntual
   geom_line(aes(y = tasa_punto), color = COL_GLM, linewidth = 0.85) +
   geom_point(aes(y = tasa_punto), color = COL_GLM, size = 1.5) +

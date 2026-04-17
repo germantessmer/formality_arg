@@ -438,7 +438,7 @@ p_deciles_B <- dat_deciles %>%
        x = "Decil de ingreso", y = "Media del factor", color = NULL) +
   theme(legend.position = "bottom")
 
-p_deciles_combinado <- p_deciles_A + p_deciles_B +
+p_deciles_combinado <- p_deciles_A / p_deciles_B +
   plot_annotation(
     title = NULL
   )
@@ -490,7 +490,7 @@ guardar_figura(p = p_densidad,          dir_destino = DIR_FIGURAS_06D, tipo = "h
 guardar_figura(p = p_scatter,           dir_destino = DIR_FIGURAS_06D, tipo = "scatter", indice = 2)
 guardar_figura(p = p_formalidad,        dir_destino = DIR_FIGURAS_06D, tipo = "violin",  indice = 3)
 guardar_figura(p = p_deciles_combinado, dir_destino = DIR_FIGURAS_06D, tipo = "scatter", indice = 4,
-               width = ANCHO_FIG * 2)   # patchwork 2 paneles — doble ancho
+               height = ALTO_FIG * 2)   # patchwork 2 paneles apilados — doble alto
 guardar_figura(p = p_cargas,            dir_destino = DIR_FIGURAS_06D, tipo = "barras",  indice = 5)
 
 cat("\n")

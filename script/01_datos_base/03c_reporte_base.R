@@ -326,8 +326,25 @@ p_eigenvalues <- diag_eigenvalues %>%
           x = NULL, y = "% varianza")
 
 # 6. Contribuciones por indicador a Dim1
+# Mapeo con variable padre para legibilidad (coherente con Table D.5)
+.ind_labels <- c(
+  "saneamiento"="Sanitation", "piso_mediana"="Floor: medium quality",
+  "gas_tubo"="Fuel: bottled gas", "techo"="Roof: precarious",
+  "agua"="Water: external", "si"="Amenities: yes", "gas"="Fuel: gas network",
+  "no"="Amenities: no", "1"="Rooms: 1", "piso_alta"="Floor: high quality",
+  "departamento"="Dwelling: apartment", "ocupante"="Tenure: occupant",
+  "techo_alta"="Roof: high solidity", "agua_red"="Water: indoor network",
+  "inquilino"="Tenure: tenant", "4"="Rooms: 4", "5_mas"="Rooms: 5+",
+  "casa"="Dwelling: house", "2"="Rooms: 2", "otro_tipo"="Dwelling: other",
+  "piso"="Floor: precarious", "3"="Rooms: 3", "techo_calidad"="Roof: medium quality",
+  "combustible"="Fuel: precarious", "propietario"="Tenure: owner",
+  "0"="Rooms: 0", "NA"="Rooms: NA"
+)
 p_contribuciones <- diag_contrib_indicador %>%
-  mutate(indicador = gsub("ind_", "", indicador)) %>%
+  mutate(indicador = {
+    raw <- gsub("ind_", "", indicador)
+    ifelse(raw %in% names(.ind_labels), .ind_labels[raw], raw)
+  }) %>%
   ggplot(aes(x = reorder(indicador, contrib_dim1), y = contrib_dim1)) +
   geom_col(fill = PAL_DESCRIPTIVO[1], alpha = 0.85) +
   geom_hline(yintercept = 100 / nrow(diag_contrib_indicador),
@@ -343,11 +360,10 @@ p_contribuciones <- diag_contrib_indicador %>%
 # 7. Coordenadas PCA — 10 categorías de indicadores
 p_coordenadas <- diag_coordenadas %>%
   mutate(
-    indicador       = sub("_[^_]+$", "", categoria),
-    indicador       = gsub("ind_", "", indicador),
-    categoria_label = sub(".*_", "", categoria)
+    indicador       = tr(gsub("ind_", "", sub("_[^_]+$", "", categoria))),
+    categoria_label = tr(gsub("ind_", "", categoria))
   ) %>%
-  ggplot(aes(x = Dim1, y = reorder(categoria, Dim1), color = indicador)) +
+  ggplot(aes(x = Dim1, y = reorder(categoria_label, Dim1), color = indicador)) +
   geom_point(size = 3.5, alpha = 0.85) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
   scale_color_manual(values = .pal_mca) +
@@ -359,9 +375,8 @@ p_coordenadas <- diag_coordenadas %>%
 # 8. Cos² por categoría en Dim1
 p_cos2 <- diag_cos2 %>%
   mutate(
-    indicador       = sub("_[^_]+$", "", categoria),
-    indicador       = gsub("ind_", "", indicador),
-    categoria_label = categoria
+    indicador       = tr(gsub("ind_", "", sub("_[^_]+$", "", categoria))),
+    categoria_label = tr(gsub("ind_", "", categoria))
   ) %>%
   ggplot(aes(x = cos2_dim1, y = reorder(categoria_label, cos2_dim1), fill = indicador)) +
   geom_col(alpha = 0.85) +
@@ -369,7 +384,7 @@ p_cos2 <- diag_cos2 %>%
              color = PAL_DESCRIPTIVO[4], linewidth = 0.7) +
   scale_fill_manual(values = .pal_mca) +
   theme_paper() +
-  theme(legend.position = "right") +
+  theme(legend.position = "none") +
   tr_labs(title = "Cos² por categoría en Dim1",
           x = "Cos² (Dim1)", y = NULL, fill = "Indicador")
 

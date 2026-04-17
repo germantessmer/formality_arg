@@ -58,7 +58,7 @@ Individual layers can also be run independently by sourcing scripts in order.
 | 4 | `script/04_modelado/{LPM,GLM,SLS}/` | LASSO model estimation (3 families) | `07a` -- `07e` |
 | 5 | `script/05_backcasting/{LPM,GLM,SLS}/` | Historical backcasting and hybrid construction | `08a` -- `08c` |
 | 6 | `script/06_comparativo/` | Cross-model comparison | `09a` -- `09c` |
-| 7 | `script/07_robusto/` | Robustness checks (15 scripts) | `10a` -- `10o` |
+| 7 | `script/07_robusto/` | Robustness checks (16 scripts) | `10a` -- `10o` |
 
 ## Configuration
 

@@ -23,8 +23,11 @@ The paper's online appendices are included in this repository at [`appendix/2026
 
 ## Data Sources
 
-1. **EPH Microdata (primary):** Pre-processed panel files from the EPH--Observatorio repository.
-   - DOI: [10.57715/UNR/BL85Z8](https://dataverse.unr.edu.ar/dataset.xhtml?persistentId=doi:10.57715/UNR/BL85Z8)
+1. **EPH Microdata (primary):** Pre-processed panel files from the EPH--Observatorio repository. Please cite this dataset as:
+
+   > Tessmer, Germán; Moleres, Santiago; Hess, Laureano Elian, 2024, "Encuesta Permanente de Hogares de Argentina (EPH - Observatorio). Explicada, etiquetada y ampliada", https://doi.org/10.57715/UNR/BL85Z8, RDA UNR, V3.
+
+   - DOI: [10.57715/UNR/BL85Z8](https://doi.org/10.57715/UNR/BL85Z8)
    - Place the `.RData` files in the directory specified by `RUTA_BASES` in `script/config/parametros.R` (default: `C:/oes/eph_rdos/capa2/`).
 
 2. **SIPA Administrative Data:** Published by the Secretaría de Trabajo, Argentina.

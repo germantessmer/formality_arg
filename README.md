@@ -1,6 +1,6 @@
 # Replication Package: From Breaks to Bridges
 
-**Paper:** "From Breaks to Bridges: Harmonizing the New and Old Permanent Household Survey for Consistent Labor Market Series"
+**Paper:** "From Breaks to Bridges: An Architecture for Survey Redesigns That Expand Conceptual Scope"
 
 **Authors:** Germán Tessmer (Universidad Nacional de Rosario) and Bárbara Boggiano (Universidad Alberto Hurtado)
 
@@ -11,6 +11,8 @@
 ## Overview
 
 This repository contains the complete R pipeline to reproduce all results, figures, and tables in the paper. The pipeline constructs a bridged labour-formality series for Argentina (2016Q4--2025Q3) from EPH microdata, combining deterministic harmonization, a two-factor latent structure, LASSO-selected predictive models (LPM, GLM, SLS), and a hybrid backcasting rule.
+
+The paper's online appendices are included in this repository at [`appendix/2026_FromBreakstoBridges-OnlineAppendix.pdf`](appendix/2026_FromBreakstoBridges-OnlineAppendix.pdf).
 
 ## Requirements
 

@@ -23,3 +23,6 @@ renv/sandbox/
 # OS
 .DS_Store
 Thumbs.db
+
+# Paper manuscript (not part of the replication package)
+paper/

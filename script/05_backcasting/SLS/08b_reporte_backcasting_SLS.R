@@ -349,7 +349,9 @@ cob_pea <- panel %>%
   group_by(periodo_id) %>%
   mutate(n_total = sum(n), pct = n / n_total) %>%
   ungroup() %>%
-  mutate(tipo_label = label_tipo_pea[tipo_estimacion_pea])
+  mutate(tipo_label = ifelse(tipo_estimacion_pea %in% names(label_tipo_pea),
+                             label_tipo_pea[tipo_estimacion_pea],
+                             tipo_estimacion_pea))
 
 n_desoc_pea <- sum(panel$tipo_estimacion_pea == "Potencial_desocupado", na.rm = TRUE)
 cat(sprintf("   N desocupados PEA: %s\n", fmt_n(n_desoc_pea)))

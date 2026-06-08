@@ -1069,8 +1069,96 @@ top_all <- bind_rows(
 ) %>% filter(!is.na(est)) %>%
   mutate(modelo=factor(modelo, levels=c("LPM","GLM (AME)","SLS")))
 
+# ── Traducir labels de variables a inglés legible (Edición 6: Parent: Category) ──
+.var_en_coefplot <- c(
+  # Occupational category
+  "categoria_ocupacional_Familiar" = "Occ. category: Family worker",
+  "categoria_ocupacional_Cuenta.Propia" = "Occ. category: Self-employed",
+  "categoria_ocupacional_Patron" = "Occ. category: Employer",
+  # Sector of activity
+  "seccion_Servicio.Domestico" = "Sector: Domestic service",
+  "seccion_Construccion" = "Sector: Construction",
+  "seccion_Servicios.Personales.y.Comunitarios" = "Sector: Personal & community services",
+  "seccion_Hoteleria.y.Gastronomia" = "Sector: Hotels & restaurants",
+  "seccion_Transporte" = "Sector: Transport",
+  "seccion_Comercio" = "Sector: Commerce",
+  "seccion_Industria" = "Sector: Industry",
+  "seccion_Agro.y.Mineria" = "Sector: Agriculture & mining",
+  "seccion_Profesionales.y.Administrativas" = "Sector: Professional & admin.",
+  "seccion_Informatica.y.Comunicaciones" = "Sector: IT & communications",
+  "seccion_Financieras.e.Inmobiliarias" = "Sector: Finance & real estate",
+  "seccion_Otros.Desconocido" = "Sector: Other / unknown",
+  "seccion_Salud" = "Sector: Health",
+  "seccion_Enseñanza" = "Sector: Teaching",
+  # Demography
+  "edad" = "Demography: Age", "edad_cuadrado" = "Demography: Age squared",
+  "sexo_Mujeres" = "Demography: Women",
+  "lugar_nacimiento_Otro_Pais" = "Demography: Born abroad (other country)",
+  "lugar_nacimiento_Pais_Limitrofe" = "Demography: Born abroad (neighbouring)",
+  "alfabetizacion_Si" = "Demography: Literate",
+  # Education
+  "asistencia_escuela_Ns.Nr" = "Education: School attendance DK/NR",
+  "nivel_educ_obtenido2_Universitaria.Completa" = "Education: University complete",
+  "nivel_educ_obtenido2_Terciario.Completo" = "Education: Tertiary complete",
+  "nivel_educ_obtenido2_Universitaria.Incompleta" = "Education: University incomplete",
+  "nivel_educ_obtenido2_Secundaria.Completa" = "Education: Secondary complete",
+  "nivel_educ_obtenido2_Primaria.Incompleta" = "Education: Primary incomplete",
+  "tipo_escuela_Publico" = "Education: Public school",
+  # Household / housing
+  "ich_score" = "Household: ICH score",
+  "nbi_Si" = "Household: UBN = Yes",
+  "principal_tareas_hogar_Si" = "Household: Main household-task resp.",
+  "clima_educativo_hogar" = "Household: Educational climate",
+  "residual_vivienda" = "Household: Housing-quality residual",
+  # Income sources
+  "vive_financiamiento_Si" = "Income source: Financing",
+  "vive_cuota_alimenticia_Si" = "Income source: Alimony",
+  "vive_beca_Si" = "Income source: Scholarship",
+  "vive_prestamos_personas_Si" = "Income source: Personal loan",
+  "vive_venta_bienes_Si" = "Income source: Asset sale",
+  "vive_prestamos_financieros_Si" = "Income source: Financial loan",
+  # Labour
+  "calificacion_No.calificado" = "Labour: Not qualified occupation",
+  "antiguedad" = "Labour: Tenure",
+  "entropia_estabilidad" = "Labour: Stability entropy",
+  # Latent factors
+  "theta_A_mA" = "Latent factor: Theta A",
+  "theta_B_mA" = "Latent factor: Theta B",
+  # Longitudinal proxies
+  "rezago_escolar_cohorte" = "Longitudinal: School delay by cohort",
+  "emparejamiento_selectivo" = "Longitudinal: Assortative matching",
+  # Family relationship
+  "parentesco_No.familiar" = "Relationship: Non-family member",
+  "parentesco_Hijo.a" = "Relationship: Child",
+  "parentesco_Conyuge" = "Relationship: Spouse",
+  # Marital status
+  "estado_civil_Soltero.a" = "Marital status: Single",
+  "estado_civil_Viudo.a" = "Marital status: Widowed",
+  "estado_civil_Separado.a" = "Marital status: Separated",
+  "estado_civil_Unido.a" = "Marital status: Cohabiting",
+  # Urban agglomeration (note: R uses U+2026 ellipsis and accented chars from EPH labels)
+  "aglomerado_S.del.Estero\u2026La.Banda" = "Agglomeration: S. del Estero - La Banda",
+  "aglomerado_Gran.San.Juan" = "Agglomeration: Gran San Juan",
+  "aglomerado_Gran.Tucum\u00e1n\u2026T..Viejo" = "Agglomeration: Gran Tucum\u00e1n - Taf\u00ed Viejo",
+  "aglomerado_Ushuaia\u2026R\u00edo.Grande" = "Agglomeration: Ushuaia - R\u00edo Grande",
+  "aglomerado_San.Luis\u2026El.Chorrillo" = "Agglomeration: San Luis - El Chorrillo",
+  "aglomerado_Gran.Mendoza" = "Agglomeration: Gran Mendoza"
+)
+# Normalize variable names: replace Unicode ellipsis (U+2026) with "..." and strip accents for matching
+.normalize_varname <- function(x) {
+  x <- gsub("\u2026", "...", x)                     # ellipsis -> three dots
+  x <- iconv(x, from="UTF-8", to="ASCII//TRANSLIT") # strip accents
+  x
+}
+names(.var_en_coefplot) <- .normalize_varname(names(.var_en_coefplot))
+top_all <- top_all %>%
+  mutate(.var_norm = .normalize_varname(variable)) %>%
+  mutate(variable_en = ifelse(.var_norm %in% names(.var_en_coefplot),
+                              .var_en_coefplot[.var_norm], variable)) %>%
+  select(-.var_norm)
+
 if (nrow(top_all)>0) {
-  p_coef <- ggplot(top_all, aes(x=est, y=reorder(variable, abs(est)),
+  p_coef <- ggplot(top_all, aes(x=est, y=reorder(variable_en, abs(est)),
                        color=modelo, shape=es_theta)) +
     geom_vline(xintercept=0, color="grey70") +
     geom_errorbarh(aes(xmin=est-1.96*se, xmax=est+1.96*se),
@@ -1088,7 +1176,7 @@ if (nrow(top_all)>0) {
     theme(legend.position="bottom",
           strip.text=element_text(face="bold"),
           axis.text.y=element_text(size=7))
-  guardar_figura(p_coef, DIR_FIGURAS_09A, "coefplot", 2, height=7)
+  guardar_figura(p_coef, DIR_FIGURAS_09A, "coefplot", 2, height=8, width=9)
   p_coef
 } else { cat("Datos de coeficientes no disponibles para graficos.\n") }
 ```

@@ -1,7 +1,8 @@
 # =============================================================================
-# [EN] derivar_capa2.R -- Reproducibility shim: derive the two capa2-only variables
-#      (nivel_educ_obtenido2, condicion_formalidad) from the publicly available capa1
-#      EPH files, replicating eph_full scripts 24/25 verbatim (legacy == new).
+# [EN] derivar_capa2.R -- Reproducibility shim: make the public capa1 EPH files match the
+#      capa2 inputs the PAPER used. Derives the two capa2-only variables (nivel_educ_obtenido2,
+#      condicion_formalidad) AND normalizes existing vars that capa2 transforms (sexo relabel;
+#      income <=0 -> NA), replicating eph_full scripts 24/25 (legacy == new) as of the paper run.
 # INPUTS:  a per-quarter EPH data.frame with capa1 columns (lowercase names)
 # OUTPUTS: the same data.frame with the two derived variables added (when missing)
 # =============================================================================
@@ -10,11 +11,18 @@
 # OBJETIVO:
 #   El paquete público distribuye las bases EPH de CAPA 1 (formato Dataverse UNR,
 #   DOI 10.57715/UNR/BL85Z8). El pipeline original consumía CAPA 2, que añade
-#   variables derivadas que NO se publican. Este módulo replica, a partir de capa1,
-#   las DOS únicas variables capa2 que el pipeline necesita y que no existen en capa1:
+#   variables derivadas que NO se publican Y transforma algunas que sí existen.
+#   Este módulo lleva capa1 a la forma capa2 que usó el PAPER, en dos partes:
 #
+#   (A) DERIVA las dos variables capa2 ausentes en capa1:
 #     · nivel_educ_obtenido2  — nivel educativo con evaluación de consistencia
 #     · condicion_formalidad  — condición de formalidad/informalidad de ocupados
+#
+#   (B) NORMALIZA variables existentes que capa2 transforma y que el loader usa:
+#     · sexo   — relabel "Hombre/Mujer" -> "Varones/Mujeres"
+#     · ingreso_total_individual / ingreso_real_total_individual /
+#       ingreso_real_capita_familiar  — regla `<= 0 -> NA` (versión del paper, pre 2026-05-22)
+#   Verificado: panel capa1-fed == panel del paper (01_panel_historico_raw.rds), 84 cols.
 #
 #   La lógica es una RÉPLICA EXACTA de eph_full/script/{legacy,new}/24.variables_capa2.R
 #   (ambas metodologías son idénticas para estas dos variables) y las etiquetas de
@@ -93,6 +101,33 @@ derivar_vars_capa2 <- function(datos) {
       )
     )
     attr(datos$condicion_formalidad, "label") <- "Condición de formalidad o informalidad de ocupados"
+  }
+
+  # ── sexo: relabel a forma capa2 ─────────────────────────────────────────────
+  # eph_full 24.variables_capa2.R L13: recode(sexo, "Mujer"="Mujeres", "Hombre"="Varones")
+  # Guard idempotente: solo actúa si están las etiquetas de capa1 (Hombre/Mujer).
+  if (is.factor(datos$sexo)) {
+    if ("Hombre" %in% levels(datos$sexo)) levels(datos$sexo)[levels(datos$sexo) == "Hombre"] <- "Varones"
+    if ("Mujer"  %in% levels(datos$sexo)) levels(datos$sexo)[levels(datos$sexo) == "Mujer"]  <- "Mujeres"
+  } else if (is.character(datos$sexo)) {
+    datos$sexo[datos$sexo == "Hombre"] <- "Varones"
+    datos$sexo[datos$sexo == "Mujer"]  <- "Mujeres"
+  }
+
+  # ── ingresos: regla capa2 `<= 0 -> NA` ──────────────────────────────────────
+  # eph_full 24.variables_capa2.R L149-151. NOTA: se replica la versión VIGENTE
+  # AL MOMENTO DEL PAPER (pre 2026-05-22), que aplica la regla también a la
+  # variable per-cápita familiar (la excepción que preserva el 0 es posterior).
+  # Idempotente: sobre datos capa2 (ya numéricos con NA en <=0) no cambia nada.
+  for (v in c("ingreso_total_individual", "ingreso_real_total_individual",
+              "ingreso_real_capita_familiar")) {
+    if (v %in% names(datos)) {
+      lab <- attr(datos[[v]], "label")
+      x <- suppressWarnings(as.numeric(haven::zap_labels(datos[[v]])))
+      x[!is.na(x) & x <= 0] <- NA_real_
+      if (!is.null(lab)) attr(x, "label") <- lab
+      datos[[v]] <- x
+    }
   }
 
   datos

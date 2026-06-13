@@ -1,6 +1,6 @@
 # =============================================================================
 # [EN] 10g_desc_jubilatorio_sensitivity.R -- PP07H (pension contribution) missingness quantification for wage earners
-# INPUTS:  C:/oes/eph_rdos/capa2/EPH*.RData (overlap quarters)
+# INPUTS:  C:/oes/eph_rdos/capa1/EPH*.RData (overlap quarters, capa1)
 # OUTPUTS: Console diagnostics for B2-Q6 response
 # =============================================================================
 # 🌟 10g_desc_jubilatorio_sensitivity.R 🌟 ####

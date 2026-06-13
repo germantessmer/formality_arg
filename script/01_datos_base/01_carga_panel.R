@@ -1,6 +1,6 @@
 # =============================================================================
 # [EN] 01_carga_panel.R -- Load and stack quarterly EPH microdata into a historical panel (2016Q4-2025Q3)
-# INPUTS:  C:/oes/eph_rdos/capa2/EPH*.RData (raw EPH microdata)
+# INPUTS:  C:/oes/eph_rdos/capa1/EPH*.RData (EPH capa1 Dataverse microdata)
 # OUTPUTS: rdos/datos/01_panel_historico_raw.rds
 # =============================================================================
 # 🌟 01_carga_panel.R 🌟 ####

@@ -1,6 +1,6 @@
 # =============================================================================
 # [EN] 10h_sensibilidad_reglas_formalidad.R -- Sensitivity to alternative formality rules for non-wage workers (any-of, all-of, two-of-3)
-# INPUTS:  C:/oes/eph_rdos/capa2/EPH*.RData (overlap quarters)
+# INPUTS:  C:/oes/eph_rdos/capa1/EPH*.RData (overlap quarters, capa1)
 # OUTPUTS: rdos/reportes/10h_sensibilidad_reglas.html, rdos/figuras/10h_sensibilidad_reglas/*.pdf
 # =============================================================================
 # 🌟 10h_sensibilidad_reglas_formalidad.R 🌟 ####
@@ -16,7 +16,7 @@
 #   Los asalariados NO cambian (PP07H siempre).
 #
 # INPUTS:
-#   C:/oes/eph_rdos/capa2/EPH*_T*.RData  (microdatos EPH, derivados de TRIMESTRES_FORMALIDAD)
+#   C:/oes/eph_rdos/capa1/EPH*_T*.RData  (microdatos EPH capa1, derivados de TRIMESTRES_FORMALIDAD)
 #
 # OUTPUTS:
 #   rdos/reportes/10h_sensibilidad_reglas.html

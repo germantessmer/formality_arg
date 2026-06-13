@@ -28,7 +28,8 @@ The paper's online appendices are included in this repository at [`appendix/2026
    > Tessmer, Germán; Moleres, Santiago; Hess, Laureano Elian, 2024, "Encuesta Permanente de Hogares de Argentina (EPH - Observatorio). Explicada, etiquetada y ampliada", https://doi.org/10.57715/UNR/BL85Z8, RDA UNR, V3.
 
    - DOI: [10.57715/UNR/BL85Z8](https://doi.org/10.57715/UNR/BL85Z8)
-   - Place the `.RData` files in the directory specified by `RUTA_BASES` in `script/config/parametros.R` (default: `C:/oes/eph_rdos/capa2/`).
+   - Download the layer-1 (`capa1`) `EPH{YYYY}_T{1-4}.RData` files and place them in the directory specified by `RUTA_BASES` in `script/config/parametros.R` (default: `C:/oes/eph_rdos/capa1/`).
+   - **Self-contained derivation:** the published `capa1` files do not carry the two analytical variables `nivel_educ_obtenido2` (education level with consistency check) and `condicion_formalidad` (formality status). The pipeline reconstructs them on load via `script/funciones/derivar_capa2.R` — an exact replica of the upstream layer-2 recodes — so the package is fully reproducible from public inputs. The step is a no-op if the input already contains those variables.
 
 2. **SIPA Administrative Data:** Published by the Secretaría de Trabajo, Argentina.
    - URL: https://www.argentina.gob.ar/trabajo/estadisticas/situacion-y-evolucion-del-trabajo-registrado

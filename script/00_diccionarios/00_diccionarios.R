@@ -1,6 +1,6 @@
 # =============================================================================
 # [EN] 00_diccionarios.R -- Build variable dictionaries and crosswalk tables for education variables
-# INPUTS:  C:/oes/eph_rdos/capa2/EPH*.RData (raw EPH microdata)
+# INPUTS:  C:/oes/eph_rdos/capa1/EPH*.RData (EPH capa1 Dataverse microdata)
 # OUTPUTS: rdos/inputs/diccionarios/00_diccionarios.rds, observed CSVs
 # =============================================================================
 # 🌟 00_diccionarios.R 🌟 ####
@@ -10,7 +10,7 @@
 #           de mapeo numérico validados, y compilar artefacto consumible por Script 04.
 #           El script es ONE-SHOT: crea CSVs pre-completados con taxonomía del
 #           sistema educativo argentino validada en proyecto anterior.
-# INPUTS:   C:/oes/eph_rdos/capa2/EPH*.RData  (crudos EPH, solo lectura)
+# INPUTS:   C:/oes/eph_rdos/capa1/EPH*.RData  (EPH capa1 Dataverse, solo lectura)
 # OUTPUTS:  rdos/inputs/diccionarios/observed/00_vals_asistencia.csv
 #           rdos/inputs/diccionarios/observed/00_vals_nivel_educ.csv
 #           rdos/inputs/diccionarios/observed/00_observed_cache.rds
@@ -90,6 +90,9 @@ extract_vals_one_file <- function(path,
   dt <- get("datos", envir = e)
   setDT(dt)
   setnames(dt, tolower(names(dt)))
+
+  # Reproducibilidad: derivar nivel_educ_obtenido2 desde capa1 si falta (réplica capa2)
+  dt <- data.table::as.data.table(derivar_vars_capa2(dt))
 
   cols_ok <- intersect(cols_need, names(dt))
   if (length(cols_ok) == 0) {

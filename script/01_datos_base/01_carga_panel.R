@@ -8,7 +8,7 @@
 # OBJETIVO: Cargar panel histórico completo (2016T4–2025T3) con IDs consistentes
 #           y limpieza básica de edad y antigüedad.
 #           NO hace taxonomía (eso va a Script 02).
-# INPUTS:   C:/oes/eph_rdos/capa2/EPH*.RData  (crudos EPH, solo lectura)
+# INPUTS:   C:/oes/eph_rdos/capa1/EPH*.RData  (EPH capa1 Dataverse, solo lectura)
 # OUTPUTS:  rdos/datos/01_panel_historico_raw.rds
 # NOTA:     La preselección de variables está guiada por dos fuentes:
 #           (1) LEGACY_03a vars_core — lista final usada después de limpieza
@@ -137,6 +137,10 @@ lista_datos <- lapply(seq_len(nrow(df_arch)), function(i) {
 
   # Normalizar nombres a minúsculas
   names(datos) <- tolower(names(datos))
+
+  # Reproducibilidad: derivar nivel_educ_obtenido2 y condicion_formalidad desde capa1
+  # (réplica de eph_full capa2). No-op si el input ya es capa2 (variables presentes).
+  datos <- derivar_vars_capa2(datos)
 
   # busca_trabajo_* es dinámica: detectar todas las variantes presentes
   vars_busca <- names(datos)[stringr::str_detect(names(datos), "^busca_trabajo")]

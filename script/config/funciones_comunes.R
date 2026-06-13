@@ -58,7 +58,8 @@ archivos_funciones <- c(
   "validaciones.R",   # 2° — usa helpers
   "limpieza.R",       # 3° — usa helpers
   "taxonomia.R",      # 4° — usa limpieza
-  "theme_paper.R"     # 5° — sistema gráfico unificado (requiere ggplot2 + parametros.R)
+  "derivar_capa2.R",  # 5° — réplica capa1→capa2 (nivel_educ_obtenido2, condicion_formalidad)
+  "theme_paper.R"     # 6° — sistema gráfico unificado (requiere ggplot2 + parametros.R)
 )
 
 # Diccionario de presentacion — cargado desde config/ (no funciones/)
@@ -99,6 +100,9 @@ funciones_esperadas <- c(
 
   # taxonomia.R
   "mapear_seccion", "normalizar_calificacion", "get_seccion_levels", "get_calificacion_levels",
+
+  # derivar_capa2.R
+  "derivar_vars_capa2",
 
   # theme_paper.R — funciones
   "theme_paper", "scale_color_modelos", "scale_fill_modelos",

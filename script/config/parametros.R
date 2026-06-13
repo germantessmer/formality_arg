@@ -16,8 +16,11 @@ suppressPackageStartupMessages({
 RUTA_PROYECTO <- here::here()  # C:/formalidad_back (detecta .Rproj automáticamente)
 RUTA_SCRIPTS  <- file.path(RUTA_PROYECTO, "script")
 
-# Datos crudos EPH (solo lectura, externos al proyecto)
-RUTA_BASES    <- "C:/oes/eph_rdos/capa2/"
+# Datos EPH de entrada (solo lectura, externos al proyecto).
+# Apuntar a las bases CAPA 1 del Dataverse UNR (DOI 10.57715/UNR/BL85Z8):
+# archivos EPH{YYYY}_T{1-4}.RData. El pipeline deriva las variables capa2 que
+# necesita (nivel_educ_obtenido2, condicion_formalidad) vía script/funciones/derivar_capa2.R.
+RUTA_BASES    <- "C:/oes/eph_rdos/capa1/"
 
 # Outputs DENTRO del proyecto
 RUTA_OUTPUTS  <- file.path(RUTA_PROYECTO, "rdos")
